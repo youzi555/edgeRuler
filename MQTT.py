@@ -1,5 +1,7 @@
 import paho.mqtt.client as mqtt
 import time
+import json
+import PykkaActor
 
 MQTTHOST = "47.105.120.203"
 MQTTPORT = 30011
@@ -24,6 +26,9 @@ def mqtt_subscribe(mqttClient):
  
 def on_message_come(client, userdata, msg):
     print(msg.topic+" "+msg.payload.decode("utf-8"))
+    #TODO 存入数据库
+    jsonMsg = json.loads(msg.payload.decode("utf-8"))
+    PykkaActor.actor_ref.tell(jsonMsg)
     
 
 

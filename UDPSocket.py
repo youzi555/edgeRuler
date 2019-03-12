@@ -2,6 +2,8 @@ import socket
 import threading
 import Resolution
 
+clients = {}
+
 def serverUdp():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -32,6 +34,7 @@ def clientTcp(address, readySnid):
     client.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
     ip = address[0]
     client.connect((ip, port))
+    clients[readySnid] = client
     snid = "0800" + readySnid + "fe9d"
     bytes = bytearray.fromhex(snid)
     client.send(bytes)
@@ -53,5 +56,19 @@ class TCPThread(threading.Thread):
         
     def run(self):
         clientTcp(self.address, self.readySnid)
+
+
+def sendControlMessage(serviceName, methodName, deviceSAAndEP, state):
+    controlStr = ''
+    if serviceName == 'control switch':
+        if methodName == 'setstate':
+           controlStr = 'fe820d02'+deviceSAAndEP[0:4]+'000000000000'+deviceSAAndEP[4:6]+'0000'+state
+    
+    for key in clients:
+        finalStr = '1600'+key+controlStr
+        bytes = bytearray.fromhex(finalStr)
+        clients.get(key).send(bytes)
+        
+
 
 #serverUdp()
