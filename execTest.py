@@ -1,10 +1,15 @@
+import execjs
+
 if __name__ == '__main__':
-    func = "def fact(n): " \
-           "\n\tif n==1:" \
-           "\n\t\treturn 1 " \
-           "\n\telse:" \
-           "\n\t\treturn n*fact(n-1)"
+    func = "function filter(deviceSAAndEP, key, value){if (deviceSAAndEP=='098001' && key == 'alarm' && value==1){return true;}else{return false;}}"
+           
+    deviceSAAndEP = "098001"
+    key = 'alarm'
+    value = 1.0
+    
     print(func)
-    exec(func)
-    a = fact(5)
+    ctx = execjs.compile(func)
+    
+    a = ctx.call("filter", deviceSAAndEP, key, value)
     print(a)
+    # print(int('0005'))

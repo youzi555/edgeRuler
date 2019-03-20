@@ -62,7 +62,12 @@ def sendControlMessage(serviceName, methodName, deviceSAAndEP, state):
     controlStr = ''
     if serviceName == 'control switch':
         if methodName == 'setstate':
-           controlStr = 'fe820d02'+deviceSAAndEP[0:4]+'000000000000'+deviceSAAndEP[4:6]+'0000'+state
+            if(state == 'true'):
+                state = '01'
+            if(state == 'false'):
+                state = '00'
+            
+            controlStr = 'fe820d02'+deviceSAAndEP[0:4]+'000000000000'+deviceSAAndEP[4:6]+'0000'+state
     
     for key in clients:
         finalStr = '1600'+key+controlStr

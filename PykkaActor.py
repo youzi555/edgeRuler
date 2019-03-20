@@ -14,10 +14,11 @@ class Greeter(pykka.ThreadingActor):
         print(message)
         #TODO 根据设备id查询规则，并下发
         if 'deviceData' in message:
-            UDPSocket.sendControlMessage('control switch', 'setstate', 'ce4e10', '01')
-            # deviceSAAndEP = message.get('deviceData').get("shortAddress")+message.get('deviceData').get('Endpoint')
-            # for ruleActor in deviceToActor.get(deviceSAAndEP):
-            #     ruleActor.tell(message)
+            # UDPSocket.sendControlMessage('control switch', 'setstate', 'ce4e10', '01')
+            deviceSAAndEP = message.get('deviceData').get("shortAddress")+message.get('deviceData').get('Endpoint')
+            if deviceSAAndEP in deviceToActor.keys():
+                for ruleActor in deviceToActor.get(deviceSAAndEP):
+                    ruleActor.tell(message)
 
         if 'rule' in message:
             deviceSAAndEP =message.get("rule").get("shortAddress")+message.get("rule").get("Endpoint")
