@@ -2,6 +2,7 @@ import startThread
 from flask import Flask,render_template,request,url_for
 import PykkaActor
 import json
+import execjs
 
 app = Flask(__name__,template_folder='templates')
 
@@ -25,10 +26,11 @@ def test():
                         "else{" \
                         "   return false;}}"
         newFilter = newFilter.replace("\\", "")
-        newFilters.append(newFilter)
+        compileFilter = execjs.compile(newFilter)
+        newFilters.append(compileFilter)
         
     del requestbody.get('rule')['filters']
-    requestbody.get('rule').update({'filters':newFilters})
+    requestbody.get('rule').update({'filters': newFilters})
     
     PykkaActor.actor_ref.tell(requestbody)
     
@@ -41,5 +43,5 @@ def hello_world():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8080)
+    app.run(host='0.0.0.0', port=5000)
 

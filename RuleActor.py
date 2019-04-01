@@ -20,15 +20,14 @@ def processData(message, rule):
     result = True
     
     for filterFunc in rule.get('filters'):
-        tag = True
+        tag = False
         
         for data in message.get('deviceData').get('data'):
             key = data.get('key')
             value = data.get('value')
             # loc = locals()
             try:
-                ctx = execjs.compile(filterFunc)
-                eachresult = ctx.call("filter", deviceSAAndEP, key, value)
+                eachresult = filterFunc.call("filter", deviceSAAndEP, key, value)
             except Exception as e:
                 print(e)
             # result = loc['result']
