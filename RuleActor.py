@@ -34,6 +34,8 @@ def processData(message, rule):
 
             # print(result)
             tag = eachresult or tag
+            if tag == True:
+                break;
             
         result = result and tag
         if result == False:

@@ -33,20 +33,21 @@ def clientTcp(address, readySnid):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.setsockopt(socket.SOL_SOCKET, socket.SO_KEEPALIVE, 1)
     ip = address[0]
-    client.connect((ip, port))
-    clients[readySnid] = client
-    snid = "0800" + readySnid + "fe9d"
-    bytes = bytearray.fromhex(snid)
-    client.send(bytes)
-    print(bytes)
-    while True:
-        data = client.recvfrom(1024*1024)
-        deviceBytes = data[0]
-        
-        if(data!=None):
-            print(deviceBytes.hex())
-            Resolution.resolution(deviceBytes.hex())
-            continue
+    if readySnid not in clients.keys():
+        client.connect((ip, port))
+        clients[readySnid] = client
+        snid = "0800" + readySnid + "fe9d"
+        bytes = bytearray.fromhex(snid)
+        client.send(bytes)
+        print(bytes)
+        while True:
+            data = client.recvfrom(1024*1024)
+            deviceBytes = data[0]
+            
+            if(data!=None):
+                print(deviceBytes.hex())
+                Resolution.resolution(deviceBytes.hex())
+                continue
         
 class TCPThread(threading.Thread):
     def __init__(self, address, readySnid):
