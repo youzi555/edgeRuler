@@ -31,3 +31,20 @@ def insertManyTransform(transform_dicts):
     
     conn.commit()
     conn.close()
+
+
+def selectTransforms(ruleId):
+    conn = sqlite3.connect('edge.db')
+    conn.row_factory = dict_factory
+    c = conn.cursor()
+    
+    c.execute('SELECT * FROM transform WHERE ruleId =?', (ruleId, ))
+   
+    res = c.fetchall()
+    return res
+
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d

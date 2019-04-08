@@ -30,11 +30,23 @@ def insertRule(rule_dict):
     conn.commit()
     conn.close()
     
-def selectRules(condition):
+def selectAllRules():
     conn = sqlite3.connect('edge.db')
+    conn.row_factory = dict_factory
     c = conn.cursor()
-
     
+    c.execute('SELECT * FROM rule')
+    
+    res = c.fetchall()
+    return res
+    
+def dict_factory(cursor, row):
+    d = {}
+    for idx, col in enumerate(cursor.description):
+        d[col[0]] = row[idx]
+    return d
+
+
 initial()
 FilterSql.initial()
 TransformSql.initial()
