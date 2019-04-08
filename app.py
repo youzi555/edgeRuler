@@ -1,8 +1,12 @@
 import startThread
+import copy
 from flask import Flask,render_template,request,url_for
 import PykkaActor
 import json
 import execjs
+import RuleSql
+import FilterSql
+import TransformSql
 
 app = Flask(__name__,template_folder='templates')
 
@@ -26,9 +30,16 @@ def test():
                         "else{" \
                         "   return false;}}"
         newFilter = newFilter.replace("\\", "")
+        
+        filter.update({'filterCode': newFilter})
+        del filter['key']
+        del filter['value']
+        
         compileFilter = execjs.compile(newFilter)
         newFilters.append(compileFilter)
-        
+
+    savebody = copy.deepcopy(requestbody)
+    saveRule(savebody.get('rule'))
     del requestbody.get('rule')['filters']
     requestbody.get('rule').update({'filters': newFilters})
     
@@ -40,6 +51,40 @@ def test():
 @app.route('/')
 def hello_world():
     return 'Hello World!'
+
+
+def saveRule(dict):
+    rule_dict = {}
+    rule_dict.update({'ruleId': dict.get("ruleId"),
+                      'state': dict.get("state"),
+                      'shortAddress': dict.get("shortAddress"),
+                      'Endpoint': dict.get("Endpoint")})
+    RuleSql.insertRule(rule_dict)
+    
+    filter_dicts = []
+    filter_dict = {}
+    
+    for filter in dict.get('filters'):
+        filter_dict['filterId'] = filter.get('filterId')
+        filter_dict['ruleId'] = dict.get('ruleId')
+        filter_dict['filterCode'] = filter.get('filterCode')
+        filter_dicts.append(filter_dict)
+    
+    FilterSql.insertManyFilter(filter_dicts)
+    
+    transforms = []
+    transform = {}
+    for transform_dict in dict.get('transform'):
+        transform['transformId'] = transform_dict.get('transformId')
+        transform['ruleId'] = dict.get('ruleId')
+        transform['name'] = transform_dict.get('name')
+        transform['url'] = transform_dict.get('url')
+        transform['method'] = transform_dict.get('method')
+        transform['body'] = str(transform_dict.get('body'))
+        
+        transforms.append(transform)
+    
+    TransformSql.insertManyTransform(transforms)
 
 
 if __name__ == '__main__':

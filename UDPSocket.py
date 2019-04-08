@@ -1,6 +1,7 @@
 import socket
 import threading
 import Resolution
+import multiprocessing
 
 clients = {}
 
@@ -49,9 +50,9 @@ def clientTcp(address, readySnid):
                 Resolution.resolution(deviceBytes.hex())
                 continue
         
-class TCPThread(threading.Thread):
+class TCPThread(multiprocessing.Process):
     def __init__(self, address, readySnid):
-        threading.Thread.__init__(self)
+        multiprocessing.Process.__init__(self)
         self.address = address
         self.readySnid = readySnid
         

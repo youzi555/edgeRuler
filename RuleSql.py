@@ -1,4 +1,6 @@
 import sqlite3
+import FilterSql
+import TransformSql
 
 def initial():
     conn = sqlite3.connect('edge.db')
@@ -17,3 +19,22 @@ def initial():
     
     conn.commit()
     conn.close()
+    
+def insertRule(rule_dict):
+    conn = sqlite3.connect('edge.db')
+    c = conn.cursor()
+    
+    sql = '''INSERT INTO rule (ruleId, state, shortAddress, Endpoint) VALUES (:ruleId, :state, :shortAddress, :Endpoint)'''
+    c.execute(sql, rule_dict)
+    
+    conn.commit()
+    conn.close()
+    
+def selectRules(condition):
+    conn = sqlite3.connect('edge.db')
+    c = conn.cursor()
+
+    
+initial()
+FilterSql.initial()
+TransformSql.initial()
