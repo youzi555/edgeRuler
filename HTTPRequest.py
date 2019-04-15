@@ -2,6 +2,7 @@ from urllib import parse, request
 import json
 import threading
 import MQTT
+import WSClient
 
 def getGateway(gatewayName):
     textmod = {'limit': '20', 'textSearch': gatewayName}
@@ -20,7 +21,9 @@ def getGateway(gatewayName):
     id = gatewayDict.get("data")[0].get("id")
     
     print(id)
-    getCredentialbyid(id)
+    
+    WSClient.start_websocket(id)
+    # getCredentialbyid(id)
    
 def getCredentialbyid(id) :
     header_dict = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko'}

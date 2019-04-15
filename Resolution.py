@@ -6,7 +6,7 @@ def resolution(data):
         hexGatewayName = data[22:42].rstrip('0')
         bytesGatewayName = bytes.fromhex(hexGatewayName)
         GatewayName = 'Gateway_'+str(bytesGatewayName, encoding='utf-8')
-        HTTPRequest.getGateway(GatewayName)
+        #HTTPRequest.getGateway(GatewayName)
 
     if data[0:2] == '70':
         deviceData = {}
