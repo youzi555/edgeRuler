@@ -7,9 +7,14 @@ import execjs
 import RuleSql
 import FilterSql
 import TransformSql
+import Monitor
 
 app = Flask(__name__,template_folder='templates')
 
+@app.route('/getRule', methods=['GET'])
+def getRule():
+    rd = RuleSql.selectAllRules()
+    return str(rd)
 
 @app.route('/test', methods=['POST'])
 def test():
@@ -43,6 +48,14 @@ def test():
     del requestbody.get('rule')['filters']
     requestbody.get('rule').update({'filters': newFilters})
     
+    # check resource
+    tag = checkResource()
+    if tag == False:
+        rule_dict = RuleSql.searchLowPriorityRule(requestbody.get('rule').get('level'))
+        
+        # while rule_dict != {} and tag == False:
+        
+    
     PykkaActor.actor_ref.tell(requestbody)
     
     return "success"
@@ -58,6 +71,7 @@ def saveRule(dict):
     rule_dict.update({'ruleId': dict.get("ruleId"),
                       'state': dict.get("state"),
                       'shortAddress': dict.get("shortAddress"),
+                      'level':dict.get('level'),
                       'Endpoint': dict.get("Endpoint")})
     RuleSql.insertRule(rule_dict)
     
@@ -85,6 +99,18 @@ def saveRule(dict):
         transforms.append(transform)
     
     TransformSql.insertManyTransform(transforms)
+
+def checkResource():
+    cpu = Monitor.getCPUUse()
+    mem = Monitor.getMemoryUse()
+    
+    if cpu <= 90 and mem <= 80:
+        return True
+    else:
+        return False
+
+    
+    
 
 
 if __name__ == '__main__':
