@@ -57,6 +57,24 @@ def searchLowPriorityRule(level):
     res = c.fetchall()
     return res
 
+def updateRuleState(state, ruleId):
+    conn = sqlite3.connect('edge.db')
+    c = conn.cursor()
+    
+    c.execute('UPDATE rule SET state = '+state+'WHERE ruleId = '+ruleId)
+
+    conn.commit()
+    conn.close()
+
+
+def updateRuleLevel(level, ruleId):
+    conn = sqlite3.connect('edge.db')
+    c = conn.cursor()
+    
+    c.execute('UPDATE rule SET level = ' + level + 'WHERE ruleId = ' + ruleId)
+    
+    conn.commit()
+    conn.close()
 
 initial()
 FilterSql.initial()

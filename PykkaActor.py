@@ -24,12 +24,22 @@ class Greeter(pykka.ThreadingActor):
             if deviceSAAndEP in deviceToActor.keys():
                 for ruleActor in deviceToActor.get(deviceSAAndEP):
                     ruleActor.tell(message)
-
+                    
         if 'rule' in message:
             deviceSAAndEP =message.get("rule").get("shortAddress")+message.get("rule").get("Endpoint")
             actor_ref = RuleActor.RuleActor.start(message.get("rule"))
             deviceToActor.setdefault(deviceSAAndEP,[]).append(actor_ref)
             
+        if 'stop' in message:
+            deviceSAAndEP = message.get("stop").get("shortAddress") + message.get("stop").get("Endpoint")
+            if deviceSAAndEP in deviceToActor.keys():
+                for ruleActor in deviceToActor.get(deviceSAAndEP):
+                    if ruleActor.rule.get('ruleId') == message.get('stop').get('ruleId'):
+                        deviceToActor.get(deviceSAAndEP).remove(ruleActor)
+                        ruleActor.stop()
+                        break
+            
+            return True
             
     def on_start(self):
         print('启动pykka')
