@@ -52,7 +52,7 @@ def searchLowPriorityRule(level):
     conn.row_factory = dict_factory
     c = conn.cursor()
     
-    c.execute('SELECT * FROM rule WHERE level<'+level+'AND state == "EDGE" order by level')
+    c.execute('SELECT * FROM rule WHERE level<'+level+'AND state == "EDGE" order by level LIMIT = 10')
 
     res = c.fetchall()
     return res

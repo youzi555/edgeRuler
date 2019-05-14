@@ -49,33 +49,19 @@ def test():
     requestbody.get('rule').update({'filters': newFilters})
     
     # check resource
-    tag = checkResource()
+    tag = Monitor.checkResource()
     if tag == False:
-        rule_list = RuleSql.searchLowPriorityRule(requestbody.get('rule').get('level'))
+        tag = Monitor.resourceOffload(requestbody.get('rule').get('level'))
+
+    if not tag:
+        # TODO 向云端发送激活当前下发任务的指令
+        if requestbody.get('rule').get('level') == 10:
+            RuleSql.updateRuleLevel(8, requestbody.get('rule').get('ruleId'))
     
-        for rule_dict in rule_list:
-            # TODO 向云端发送规则激活的命令
-            
-            stop_dict = {}
-            stop_dict.update({'stop': rule_dict})
-            res = PykkaActor.actor_ref.ask(stop_dict)
-            
-            RuleSql.updateRuleState('CLOUD', rule_dict.get('ruleId'))
-            
-            if res:
-                tag = checkResource()
-                
-            if tag:
-                break
-        
-        if not tag:
-            #TODO 向云端发送激活当前下发任务的指令
-            if requestbody.get('rule').get('level') == 10:
-                RuleSql.updateRuleLevel(8, requestbody.get('rule').get('ruleId'))
-                RuleSql.updateRuleState('CLOUD', requestbody.get('rule').get('ruleId'))
+        RuleSql.updateRuleState('CLOUD', requestbody.get('rule').get('ruleId'))
+        return "error: out of resources"
         
     PykkaActor.actor_ref.tell(requestbody)
-    
     return "success"
     
     
@@ -117,15 +103,6 @@ def saveRule(dict):
         transforms.append(transform)
     
     TransformSql.insertManyTransform(transforms)
-
-def checkResource():
-    cpu = Monitor.getCPUUse()
-    mem = Monitor.getMemoryUse()
-    
-    if cpu <= 90 and mem <= 80:
-        return True
-    else:
-        return False
 
     
     
